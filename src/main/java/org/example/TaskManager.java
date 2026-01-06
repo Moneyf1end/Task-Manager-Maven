@@ -1,23 +1,17 @@
 package org.example;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.SQLOutput;
+import java.util.List;
 import java.util.Random;
 
 public class TaskManager {
-    private static final String[] array = new String[]{"Bye", "Hello", "Fuck off", "Smth gorgeous", "Visibility", "Testing"};
-    private static final Boolean[] arrayAnother = new Boolean[]{true, false};
-    private Random random = new Random();
-
-    public <T> T randomGenerator(T[] arrayOfElements) {
-        return arrayOfElements[random.nextInt(arrayOfElements.length)];
-    }
-
     public void taskAppExecutor() {
-        Task_db db_check = new Task_db("jdbc:postgresql://localhost:5432/YOUR_DB_NAME", "YOUR_USERNAME", "YOUR_PASSWORD");
+        Task_db db_check = new Task_db();
         try(BufferedReader bf = new BufferedReader(new InputStreamReader(System.in))) {
             while(true) {
                 System.out.println("\n--- Tasks`s menu ---");
@@ -29,9 +23,9 @@ public class TaskManager {
 
                 String line = bf.readLine();
                     switch (line) {
-                        case "1" -> db_check.showInfoAboutTable();
-                        case "2" -> db_check.addInfo(randomGenerator(array), randomGenerator(arrayAnother));
-                        case "3" -> db_check.deleteRandomIdTask();
+                        case "1" -> infoStream(db_check.showInfo());
+                        case "2" -> db_check.addInfo( addInfoGenerator(bf));
+                        case "3" -> db_check.deleteInfo(deleteGenerator(bf));
                         case "0" -> {
                             return;
                         }
@@ -40,5 +34,23 @@ public class TaskManager {
         } catch(Exception e) {
             System.out.println(e.getMessage());
         }
+    }
+    private Task addInfoGenerator(BufferedReader bf) throws IOException {
+        System.out.println("Add description");
+        String desc = bf.readLine();
+        System.out.println("Add isDone (true or false)");
+        Boolean isDone = Boolean.parseBoolean(bf.readLine());
+
+        Task taskExe = new Task(desc, isDone);
+        return taskExe;
+    }
+    private void infoStream(List<Task> arrayOfTasksIsDone) {
+        arrayOfTasksIsDone.stream()
+                .forEach(elem -> System.out.println(elem));
+    }
+    private int deleteGenerator(BufferedReader bf) throws IOException{
+        System.out.println("Enter id: ");
+        int getIdFromDb = Integer.parseInt(bf.readLine());
+        return getIdFromDb;
     }
 }
