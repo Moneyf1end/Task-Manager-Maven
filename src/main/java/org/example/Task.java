@@ -17,10 +17,11 @@ public class Task {
         return is_done;
     }
     public void setId(int newId) {
-        if (newId != this.id && newId > 0) this.id = newId;
+        if (newId > 0) this.id = newId;
     }
 
     public Task(String description, boolean is_done) {
+        if(description == null) throw new IllegalArgumentException("Description cannot be null");
         this.description = description;
         this.is_done = is_done;
     }
