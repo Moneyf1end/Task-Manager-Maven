@@ -36,24 +36,61 @@ public class TaskManager {
         }
     }
     private Task addInfoGenerator(BufferedReader bf) throws IOException {
-        System.out.println("Add description");
-        String desc = bf.readLine();
+        String desc = "";
+        boolean isDone = false;
+
+        while(true) {
+            System.out.println("Add description");
+            desc = bf.readLine();
+
+            if (desc != null && !desc.trim().isEmpty()) {
+                break;
+            } else {
+                System.out.println("Validation error: Description cannot be empty!");
+            }
+        }
+
         System.out.println("Add isDone (true or false)");
         while(true) {
             try {
                 String input = bf.readLine();
                 if (input == null) break;
 
-        Task taskExe = new Task(desc, isDone);
-        return taskExe;
+                if (input.equalsIgnoreCase("true")) {
+                    isDone = true;
+                    break;
+                } else if (input.equalsIgnoreCase("false")) {
+                    isDone = false;
+                    break;
+                } else {
+                    System.out.println("Error. Please enter 'true' or 'false'.");
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                break;
+            }
+        }
+
+        Task task = new Task(desc, isDone);
+        return task;
     }
+
     private void infoStream(List<Task> arrayOfTasksIsDone) {
         arrayOfTasksIsDone.stream()
                 .forEach(elem -> System.out.println(elem));
     }
+
     private int deleteGenerator(BufferedReader bf) throws IOException{
-        System.out.println("Enter id: ");
-        int getIdFromDb = Integer.parseInt(bf.readLine());
-        return getIdFromDb;
+        while(true) {
+            try {
+                System.out.println("Enter id: ");
+                int getIdFromDb = Integer.parseInt(bf.readLine());
+                return getIdFromDb;
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
