@@ -39,7 +39,10 @@ public class TaskManager {
         System.out.println("Add description");
         String desc = bf.readLine();
         System.out.println("Add isDone (true or false)");
-        Boolean isDone = Boolean.parseBoolean(bf.readLine());
+        while(true) {
+            try {
+                String input = bf.readLine();
+                if (input == null) break;
 
         Task taskExe = new Task(desc, isDone);
         return taskExe;
