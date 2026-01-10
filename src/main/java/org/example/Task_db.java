@@ -1,8 +1,10 @@
 package org.example;
+import org.yaml.snakeyaml.Yaml;
+
+import java.io.InputStream;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 public class Task_db implements Taskable{
     private String url;
@@ -10,9 +12,24 @@ public class Task_db implements Taskable{
     private String password;
 
     Task_db() {
-        this.url = "jdbc:postgresql://localhost:5432/test_bd";
-        this.user = "postgres";
-        this.password = "12345";
+        Yaml yaml = new Yaml();
+
+        try (InputStream inputStream = Task_db.class
+                .getClassLoader()
+                .getResourceAsStream("application.yaml")) {
+            if (inputStream == null) throw new RuntimeException("File application.yaml does not found");
+
+            Config config = yaml.loadAs(inputStream, Config.class);
+            if (!config.database.isValid()) throw new RuntimeException("Config is empty");
+            this.url = config.database.url;
+            this.user = config.database.user;
+            this.password = config.database.password;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Config`s error", e);
+        }
+
     }
     Task_db(String url, String user, String password) {
         this.url = url;
@@ -88,5 +105,22 @@ public class Task_db implements Taskable{
             System.out.println(e.getMessage());
         }
     }
+
+//    public void updateStatusOfTask(int idOfTasks) {
+//        try (Connection conn = getConnection()) {
+//            String sql = """
+//                    UPDATE tasks
+//                    SET is_done = true
+//                    WHERE id = ? """;
+//            var statement = conn.prepareStatement(sql);
+//
+//            statement.setInt(1, idOfTasks);
+//
+//            statement.executeUpdate();
+//
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
 }

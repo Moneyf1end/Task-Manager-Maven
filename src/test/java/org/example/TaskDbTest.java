@@ -50,5 +50,21 @@ public class TaskDbTest {
                 .orElseThrow(AssertionError::new));
     }
 
+    @Test
+    void deleteTest() {
+        Task task = new Task("Something incredible", false);
+
+        db.addInfo(task);
+        List<Task> arrayOfTasksAdded = db.showInfo();
+        Assertions.assertEquals(1, arrayOfTasksAdded.size(), "Database must contain exactly 1 task after adding");
+
+        int idToDelete = arrayOfTasksAdded.get(0).getId();
+        db.deleteInfo(idToDelete);
+
+        List<Task> arrayOfTasksDeleted = db.showInfo();
+
+
+        Assertions.assertEquals(0, arrayOfTasksDeleted.size(), "Database must be empty after deleting the task");
+    }
 
 }

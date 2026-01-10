@@ -18,6 +18,7 @@ public class TaskManager {
                 System.out.println("1. Show list");
                 System.out.println("2. Add task");
                 System.out.println("3. Delete with id");
+                System.out.println("4. Update status of task on completed");
                 System.out.println("0. Exit");
                 System.out.print("Choose number: ");
 
@@ -86,6 +87,25 @@ public class TaskManager {
                 System.out.println("Enter id: ");
                 int getIdFromDb = Integer.parseInt(bf.readLine());
                 return getIdFromDb;
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private int updateTaskGenerator(BufferedReader bf) {
+        Task_db task_dbForReadingIds = new Task_db();
+        while(true) {
+            try {
+                System.out.println("Enter the id of task you would rather be update");
+                int idOfTask = Integer.parseInt(bf.readLine());
+                List<Task> array = task_dbForReadingIds.showInfo();
+                for (Task elemGetId : array) {
+
+                }
+
             } catch (NumberFormatException e) {
                 e.printStackTrace();
             } catch (Exception e) {
