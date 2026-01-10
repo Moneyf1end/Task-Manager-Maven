@@ -43,11 +43,11 @@ public class Task_db implements Taskable{
 
     @Override
     public void addInfo(Task task) {
-        try (Connection conn = getConnection()) {
+        String sql = "INSERT INTO tasks (description, is_done) VALUES(?, ?)";
+        try (Connection conn = getConnection();
+             var preparesStatement = conn.prepareStatement(sql)) {
             System.out.println("Trying to connect");
 
-            String sql = "INSERT INTO tasks (description, is_done) VALUES(?, ?)";
-            var preparesStatement = conn.prepareStatement(sql);
             preparesStatement.setString(1, task.getDescription());
             preparesStatement.setBoolean(2, task.isIs_done());
 
@@ -65,10 +65,13 @@ public class Task_db implements Taskable{
     @Override
     public List<Task> showInfo() {
         List<Task> arrayOfTasks = new ArrayList<>();
-        try (Connection conn = getConnection()) {
-            String sql = "SELECT * FROM tasks";
-            var statement = conn.createStatement();
-            var resultSet = statement.executeQuery(sql);  // type of resultSet is ResultSet
+        String sql = """
+                SELECT * FROM tasks
+                ORDER BY id;""";
+        try (Connection conn = getConnection();
+             var statement = conn.createStatement();
+             var resultSet = statement.executeQuery(sql)) {
+            // type of resultSet is ResultSet
 
             while (resultSet.next()) {
                 int id = resultSet.getInt("id");
@@ -90,10 +93,10 @@ public class Task_db implements Taskable{
 
     @Override
     public void deleteInfo(int id) {
-        try (Connection conn = getConnection()) {
-            String sql = "DELETE FROM tasks WHERE id = ?";
+        String sql = "DELETE FROM tasks WHERE id = ?";
+        try (Connection conn = getConnection();
+             var statement = conn.prepareStatement(sql)) {
 
-            var statement = conn.prepareStatement(sql);
             statement.setInt(1, id);
 
             var result = statement.executeUpdate();
@@ -106,21 +109,20 @@ public class Task_db implements Taskable{
         }
     }
 
-//    public void updateStatusOfTask(int idOfTasks) {
-//        try (Connection conn = getConnection()) {
-//            String sql = """
-//                    UPDATE tasks
-//                    SET is_done = true
-//                    WHERE id = ? """;
-//            var statement = conn.prepareStatement(sql);
-//
-//            statement.setInt(1, idOfTasks);
-//
-//            statement.executeUpdate();
-//
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//        }
-//    }
+    @Override
+    public void updateStatusOfTask(int idOfTasks) {
+        String sql = """
+                    UPDATE tasks
+                    SET is_done = true
+                    WHERE id = ? """;
+        try (Connection conn = getConnection();
+             var statement = conn.prepareStatement(sql)) {
+            statement.setInt(1, idOfTasks);
+            statement.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 
 }

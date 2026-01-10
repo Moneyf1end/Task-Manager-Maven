@@ -27,6 +27,7 @@ public class TaskManager {
                         case "1" -> infoStream(db_check.showInfo());
                         case "2" -> db_check.addInfo( addInfoGenerator(bf));
                         case "3" -> db_check.deleteInfo(deleteGenerator(bf));
+                        case "4" -> db_check.updateStatusOfTask(updateTaskGenerator(bf, db_check));
                         case "0" -> {
                             return;
                         }
@@ -95,16 +96,25 @@ public class TaskManager {
         }
     }
 
-    private int updateTaskGenerator(BufferedReader bf) {
-        Task_db task_dbForReadingIds = new Task_db();
+    private int updateTaskGenerator(BufferedReader bf, Task_db db_check) {
         while(true) {
+            boolean flag = false;
             try {
                 System.out.println("Enter the id of task you would rather be update");
                 int idOfTask = Integer.parseInt(bf.readLine());
-                List<Task> array = task_dbForReadingIds.showInfo();
+                List<Task> array = db_check.showInfo();
                 for (Task elemGetId : array) {
-
+                    if (idOfTask == elemGetId.getId()) {
+                        flag = true;
+                        if (!elemGetId.isIs_done()) {
+                            return idOfTask;
+                        } else {
+                            System.out.println("Your task is already done. Try another!");
+                            break;
+                        }
+                    }
                 }
+                if (!flag) System.out.println("Id does not exist. Try again");
 
             } catch (NumberFormatException e) {
                 e.printStackTrace();

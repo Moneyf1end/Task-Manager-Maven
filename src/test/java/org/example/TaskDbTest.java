@@ -17,14 +17,16 @@ public class TaskDbTest {
     void virtualDbSetUp() {
         db = new Task_db(url, user, password);
 
-        try (Connection conn = DriverManager.getConnection(url, user, password)) {
-            String sql = """
+        String sql = """
                     DROP TABLE IF EXISTS tasks;
                     CREATE TABLE tasks(
                     id SERIAL PRIMARY KEY, description VARCHAR(255) NOT NULL, is_done BOOLEAN NOT NULL)
                     """ ;
-            var statement = conn.createStatement();
-            var resultSet = statement.execute(sql);
+
+        try (Connection conn = DriverManager.getConnection(url, user, password);
+             var statement = conn.createStatement()) {
+
+            statement.execute(sql);
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -65,6 +67,23 @@ public class TaskDbTest {
 
 
         Assertions.assertEquals(0, arrayOfTasksDeleted.size(), "Database must be empty after deleting the task");
+    }
+
+    @Test
+    void updateStatusOfIsDone() {
+        Task task = new Task("i did some changes", false);
+
+        db.addInfo(task);
+        List<Task> arrayOfTasksAdded = db.showInfo();
+        Assertions.assertEquals(1, arrayOfTasksAdded.size(), "Database must contain exactly 1 task after adding");
+
+        db.updateStatusOfTask(1);
+        List<Task> arrayOfUpdatedTask = db.showInfo();
+        Assertions.assertEquals(true, arrayOfUpdatedTask.stream()
+                .map(elem -> elem.isIs_done())
+                .findFirst()
+                .orElseThrow(AssertionError::new));
+
     }
 
 }
