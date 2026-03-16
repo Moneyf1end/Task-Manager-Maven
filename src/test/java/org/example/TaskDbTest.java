@@ -1,0 +1,89 @@
+package org.example;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+public class TaskDbTest {
+    private Task_db db;
+    private String url = "jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;MODE=PostgreSQL";
+    private String user = "sa";
+    private String password = "";
+
+    @BeforeEach
+    void virtualDbSetUp() {
+        db = new Task_db(url, user, password);
+
+        String sql = """
+                    DROP TABLE IF EXISTS tasks;
+                    CREATE TABLE tasks(
+                    id SERIAL PRIMARY KEY, description VARCHAR(255) NOT NULL, is_done BOOLEAN NOT NULL)
+                    """ ;
+
+        try (Connection conn = DriverManager.getConnection(url, user, password);
+             var statement = conn.createStatement()) {
+
+            statement.execute(sql);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    void addAndShowInfoTest() {
+        Task task = new Task("Testing with Junit", true);
+
+        db.addInfo(task);
+
+        List<Task> arrayOfAddedTaskes = db.showInfo();
+
+        Assertions.assertEquals(1, arrayOfAddedTaskes.size());
+        Assertions.assertEquals("Testing with Junit", arrayOfAddedTaskes.stream()
+                .map(item -> item.getDescription())
+                .findFirst()
+                .orElseThrow(AssertionError::new));
+        Assertions.assertEquals(true, arrayOfAddedTaskes.stream()
+                .map(item -> item.isIs_done())
+                .findFirst()
+                .orElseThrow(AssertionError::new));
+    }
+
+    @Test
+    void deleteTest() {
+        Task task = new Task("Something incredible", false);
+
+        db.addInfo(task);
+        List<Task> arrayOfTasksAdded = db.showInfo();
+        Assertions.assertEquals(1, arrayOfTasksAdded.size(), "Database must contain exactly 1 task after adding");
+
+        int idToDelete = arrayOfTasksAdded.get(0).getId();
+        db.deleteInfo(idToDelete);
+
+        List<Task> arrayOfTasksDeleted = db.showInfo();
+
+
+        Assertions.assertEquals(0, arrayOfTasksDeleted.size(), "Database must be empty after deleting the task");
+    }
+
+    @Test
+    void updateStatusOfIsDone() {
+        Task task = new Task("i did some changes", false);
+
+        db.addInfo(task);
+        List<Task> arrayOfTasksAdded = db.showInfo();
+        Assertions.assertEquals(1, arrayOfTasksAdded.size(), "Database must contain exactly 1 task after adding");
+
+        db.updateStatusOfTask(1);
+        List<Task> arrayOfUpdatedTask = db.showInfo();
+        Assertions.assertEquals(true, arrayOfUpdatedTask.stream()
+                .map(elem -> elem.isIs_done())
+                .findFirst()
+                .orElseThrow(AssertionError::new));
+
+    }
+
+}
